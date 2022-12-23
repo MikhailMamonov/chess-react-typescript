@@ -4,11 +4,17 @@ import { Player } from '../models/Player';
 
 interface TimerProps {
   currentPlayer: Player | null;
-  restart: () => void;
+  openRestartDialog: () => void;
+  openGameOverDialog: (winner: string) => void;
   gameTime: number;
 }
 
-const Timer: FC<TimerProps> = ({ currentPlayer, restart, gameTime }) => {
+const Timer: FC<TimerProps> = ({
+  currentPlayer,
+  openRestartDialog,
+  openGameOverDialog,
+  gameTime,
+}) => {
   const [blackTime, setBlackTime] = useState(gameTime);
   const [whiteTime, setWhiteTime] = useState(gameTime);
   const refTimer = useRef<null | ReturnType<typeof setInterval>>(null);
@@ -17,10 +23,19 @@ const Timer: FC<TimerProps> = ({ currentPlayer, restart, gameTime }) => {
     startTimer();
   }, [currentPlayer]);
 
+  useEffect(() => {
+    if (blackTime === 0 || whiteTime === 0) {
+      openGameOverDialog(
+        currentPlayer?.color === Colors.BLACK ? 'белые' : 'черные'
+      );
+    }
+  }, [blackTime, whiteTime]);
+
   function startTimer() {
     if (refTimer.current) {
       clearInterval(refTimer.current);
     }
+
     const callback = () => {
       currentPlayer?.color === Colors.BLACK
         ? decrementBlackTime()
@@ -37,16 +52,10 @@ const Timer: FC<TimerProps> = ({ currentPlayer, restart, gameTime }) => {
     setBlackTime((prev) => prev - 1);
   }
 
-  const handleRestart = () => {
-    setBlackTime(300);
-    setWhiteTime(300);
-    restart();
-  };
-
   return (
     <div className="timer">
       <div>
-        <button onClick={handleRestart}> Restart game</button>
+        <button onClick={openRestartDialog}> Restart game</button>
       </div>
       <h2>Белые - {whiteTime}</h2>
       <h2>Черные - {blackTime}</h2>

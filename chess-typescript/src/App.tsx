@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import './App.css';
 
 import BoardComponent from './components/BoardComponent';
@@ -8,10 +8,14 @@ import Timer from './components/Timer';
 import { Board } from './models/Board';
 import { Colors } from './models/Colors';
 import { Player } from './models/Player';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 
 function App() {
   const [board, setBoard] = useState(new Board());
-  const [isOpenDialog, setOpen] = useState(false);
+  const [isOpenRestart, setIsOpenRestart] = useState(true);
+  const [isOpenGameOver, setIsOpenGameOver] = useState(false);
+  const [winMessage, setWinMessage] = useState('');
   const [gameTime, setGameTime] = useState(300);
   const [whitePlayer, setWhitePlayer] = useState<Player | null>(
     new Player(Colors.WHITE)
@@ -21,13 +25,37 @@ function App() {
   );
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
 
-  useEffect(() => {
-    openDialog();
-  }, []);
-
-  const openDialog = () => {
-    setOpen(true);
+  const closeRestartDialog = () => {
+    restart();
+    setIsOpenRestart(false);
   };
+
+  const playAgainHandler = () => {
+    setIsOpenGameOver(false);
+  };
+
+  const leaveGameHandler = () => {
+    setIsOpenGameOver(false);
+  };
+
+  const openGameOver = (winner: string) => {
+    setWinMessage(`Победили ${winner}`);
+    setIsOpenGameOver(true);
+  };
+  const dialogContent = (
+    <TextField
+      autoFocus
+      id="name"
+      label="Количество секунд"
+      type="number"
+      fullWidth
+      variant="standard"
+      defaultValue={gameTime}
+      onChange={(e) => {
+        setGameTime(Number(e.target.value));
+      }}
+    />
+  );
 
   const restart = () => {
     const board = new Board();
@@ -45,10 +73,11 @@ function App() {
 
   return (
     <div className="app">
-      {!isOpenDialog && (
+      {!isOpenRestart && !isOpenGameOver && (
         <>
           <Timer
-            restart={openDialog}
+            openRestartDialog={() => setIsOpenRestart(true)}
+            openGameOverDialog={openGameOver}
             currentPlayer={currentPlayer}
             gameTime={gameTime}
           ></Timer>
@@ -71,11 +100,23 @@ function App() {
         </>
       )}
       <Modal
-        isOpen={isOpenDialog}
-        setIsOpen={setOpen}
-        restart={restart}
-        gameTime={gameTime}
-        setGameTime={setGameTime}
+        isOpen={isOpenRestart}
+        title="Укажите время на игру"
+        contentText="По истечению данного времени игрок будет считаться проигравшим"
+        dialogActions={<Button onClick={closeRestartDialog}>Готово</Button>}
+        dialogContent={dialogContent}
+      />
+      <Modal
+        isOpen={isOpenGameOver}
+        title="Время истекло"
+        contentText={winMessage}
+        dialogActions={
+          <>
+            <Button onClick={playAgainHandler}>Сыграть еще раз</Button>
+            <Button onClick={leaveGameHandler}>Покинуть игру</Button>
+          </>
+        }
+        dialogContent={null}
       ></Modal>
     </div>
   );
