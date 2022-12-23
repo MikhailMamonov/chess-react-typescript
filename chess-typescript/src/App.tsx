@@ -32,10 +32,14 @@ function App() {
 
   const playAgainHandler = () => {
     setIsOpenGameOver(false);
+    setIsOpenRestart(true);
   };
 
   const leaveGameHandler = () => {
     setIsOpenGameOver(false);
+    window.opener = null;
+    window.open('', '_self');
+    window.close();
   };
 
   const openGameOver = (winner: string) => {
