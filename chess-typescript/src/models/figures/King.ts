@@ -33,6 +33,8 @@ export class King extends Figure {
    */
   canMove(targetCell: Cell): boolean {
     if (!super.canMove(targetCell)) return false;
-    else return true;
+    const dx = Math.abs(this.cell.x - targetCell.x);
+    const dy = Math.abs(this.cell.y - targetCell.y);
+    return [0, 1].includes(dx) && [0, 1].includes(dy);
   }
 }

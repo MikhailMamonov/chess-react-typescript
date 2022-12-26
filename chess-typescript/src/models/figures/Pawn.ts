@@ -41,6 +41,7 @@ export class Pawn extends Figure {
     const firstStepDirection =
       this.cell.figure?.color === Colors.BLACK ? 2 : -2;
 
+    //Логика хода
     if (
       (targetCell.y === this.cell.y + direction ||
         (this.isFirstStep &&
@@ -50,6 +51,7 @@ export class Pawn extends Figure {
     )
       return true;
 
+    // Логика взятия фигуры
     if (
       targetCell.y === this.cell.y + direction &&
       (targetCell.x === this.cell.x + 1 || targetCell.x === this.cell.x - 1) &&

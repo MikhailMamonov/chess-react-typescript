@@ -53,8 +53,30 @@ export class Figure {
    */
   canMove(targetCell: Cell): boolean {
     if (this.color === targetCell.figure?.color) return false;
+    if (this.isKingUnderAttack()) return false;
     if (targetCell.figure?.name === FigureNames.KING) return false;
     return true;
+  }
+
+  /**
+   *Находтиться ли король под атакой
+   *
+   * @return {*}  {boolean}
+   * @memberof Figure
+   */
+  isKingUnderAttack(): boolean {
+    for (let i = 0; i < this.cell.board.getEnemy(this.cell).length; i++) {
+      if (
+        this.cell.board.getEnemy(this.cell)[i].name !== FigureNames.KING &&
+        this.cell.board
+          .getEnemy(this.cell)
+          [i].canMove(this.cell.board.getKingCell(this.color)!.cell)
+      ) {
+        console.log('isKingUnderAttack', true);
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
